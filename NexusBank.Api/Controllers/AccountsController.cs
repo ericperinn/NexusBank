@@ -9,12 +9,17 @@ public class AccountsController : ControllerBase
 {
     private readonly CreateAccountUseCase _createAccountUseCase;
     private readonly DepositUseCase _depositUseCase;
+    private readonly TransferUseCase _transferUseCase;
 
-    // A API recebe os casos de uso prontinhos aqui!
-    public AccountsController(CreateAccountUseCase createAccountUseCase, DepositUseCase depositUseCase)
+    // A API recebe os casos de uso prontos aqui!
+    public AccountsController(
+        CreateAccountUseCase createAccountUseCase,
+        DepositUseCase depositUseCase,
+        TransferUseCase transferUseCase)
     {
         _createAccountUseCase = createAccountUseCase;
         _depositUseCase = depositUseCase;
+        _transferUseCase = transferUseCase;
     }
 
     // Endpoint 1: Criar Conta
@@ -48,4 +53,19 @@ public class AccountsController : ControllerBase
             return BadRequest(new { Error = ex.Message }); // Se tentar depositar valor negativo, o erro do DDD cai aqui
         }
     }
+
+    [HttpPost("transfer")]
+    public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
+    {
+        try
+        {
+            await _transferUseCase.ExecuteAsync(request.FromAccountId, request.ToAccountId, request.Amount);
+            return Ok(new { Message = "Transferência realizada com sucesso!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
 }
+public record TransferRequest(Guid FromAccountId, Guid ToAccountId, decimal Amount);

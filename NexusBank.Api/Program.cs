@@ -17,6 +17,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 // Registrar os Casos de Uso para a API poder chamá-los
 builder.Services.AddScoped<CreateAccountUseCase>();
 builder.Services.AddScoped<DepositUseCase>();
+builder.Services.AddScoped<TransferUseCase>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

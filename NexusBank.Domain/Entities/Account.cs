@@ -37,4 +37,14 @@ public class Account
 
         Balance -= amount;
     }
+
+    public void Transfer(Account targetAccount, decimal amount)
+    {
+        if (targetAccount == null)
+            throw new ArgumentException("A conta de destino não pode ser nula.");
+
+        this.Withdraw(amount);
+
+        targetAccount.Deposit(amount);
+    }
 }
