@@ -18,6 +18,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<CreateAccountUseCase>();
 builder.Services.AddScoped<DepositUseCase>();
 builder.Services.AddScoped<TransferUseCase>();
+builder.Services.AddScoped<GetAccountUseCase>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

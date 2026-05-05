@@ -11,16 +11,19 @@ public class AccountsController : ControllerBase
     private readonly CreateAccountUseCase _createAccountUseCase;
     private readonly DepositUseCase _depositUseCase;
     private readonly TransferUseCase _transferUseCase;
+    private readonly GetAccountUseCase _getAccountUseCase;
 
     // A API recebe os casos de uso prontos aqui!
     public AccountsController(
         CreateAccountUseCase createAccountUseCase,
         DepositUseCase depositUseCase,
-        TransferUseCase transferUseCase)
+        TransferUseCase transferUseCase,
+        GetAccountUseCase getAccountUseCase)
     {
         _createAccountUseCase = createAccountUseCase;
         _depositUseCase = depositUseCase;
         _transferUseCase = transferUseCase;
+        _getAccountUseCase = getAccountUseCase;
     }
 
     // Endpoint 1: Criar Conta
@@ -66,6 +69,24 @@ public class AccountsController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetAccount(Guid id)
+    {
+        try
+        {
+            var account = await _getAccountUseCase.ExecuteAsync(id);
+
+            // Transformamos a Entidade em um DTO antes de mandar para o cliente
+            var response = new AccountResponse(account.Id, account.OwnerName, account.Balance);
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { Error = ex.Message }); // Retorna 404 se não achar a conta
         }
     }
 }
