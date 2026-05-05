@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NexusBank.Application.UseCases;
+using NexusBank.Api.DTOs;
 
 namespace NexusBank.Api.Controllers;
 
@@ -68,4 +69,3 @@ public class AccountsController : ControllerBase
         }
     }
 }
-public record TransferRequest(Guid FromAccountId, Guid ToAccountId, decimal Amount);
