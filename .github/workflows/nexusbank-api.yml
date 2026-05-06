@@ -46,9 +46,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        client-id: ${{ vars.nexusbank_api_CLIENT_ID_DC76 }}
-        tenant-id: ${{ vars.nexusbank_api_TENANT_ID_3852 }}
-        subscription-id: ${{ vars.nexusbank_api_SUBSCRIPTION_ID_3852 }}
+        client-id: ${{ vars.nexusbank_api_CLIENT_ID_3617 }}
+        tenant-id: ${{ vars.nexusbank_api_TENANT_ID_3617 }}
+        subscription-id: ${{ vars.nexusbank_api_SUBSCRIPTION_ID_3617 }}
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
