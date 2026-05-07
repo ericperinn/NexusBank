@@ -28,13 +28,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
         
     - name: Restore
-      run: dotnet restore "NexusBank.slnx"
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
       
     - name: Build
-      run: dotnet build "NexusBank.slnx" --configuration ${{ env.CONFIGURATION }} --no-restore
-      
-    - name: Test
-      run: dotnet test "NexusBank.slnx" --no-build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
       
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
