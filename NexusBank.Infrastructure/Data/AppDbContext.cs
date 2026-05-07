@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using NexusBank.Domain.Entities;
 
 namespace NexusBank.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+// Herança alterada para suportar as tabelas do Identity
+public class AppDbContext : IdentityDbContext<IdentityUser>
 {
     // Esta linha diz: "Crie uma tabela no banco chamada Accounts baseada na entidade Account"
     public DbSet<Account> Accounts { get; set; }
@@ -17,6 +20,9 @@ public class AppDbContext : DbContext
     // para saber como ler e gravar. Isso é feito aqui:
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // OBRIGATÓRIO: Esta chamada ao 'base' é o que gera as tabelas de Usuários, Senhas e Roles por debaixo dos panos
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Account>(builder =>
         {
             builder.HasKey(a => a.Id);

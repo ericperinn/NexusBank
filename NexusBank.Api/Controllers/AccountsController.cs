@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NexusBank.Application.UseCases;
 using NexusBank.Api.DTOs;
+using NexusBank.Application.UseCases;
 
 namespace NexusBank.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class AccountsController : ControllerBase
@@ -28,6 +30,7 @@ public class AccountsController : ControllerBase
 
     // Endpoint 1: Criar Conta
     // POST: api/accounts
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateAccount([FromBody] string ownerName)
     {
@@ -44,6 +47,7 @@ public class AccountsController : ControllerBase
 
     // Endpoint 2: Fazer Depósito
     // POST: api/accounts/{id}/deposit
+    [Authorize]
     [HttpPost("{id}/deposit")]
     public async Task<IActionResult> Deposit(Guid id, [FromBody] decimal amount)
     {
@@ -58,6 +62,7 @@ public class AccountsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost("transfer")]
     public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
     {
@@ -72,6 +77,7 @@ public class AccountsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAccount(Guid id)
     {
