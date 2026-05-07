@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
 
-    // Adicionamos o IConfiguration para poder ler o appsettings.json
+    // IConfiguration is used to read settings from appsettings.json
     public AuthController(UserManager<IdentityUser> userManager, IConfiguration configuration)
     {
         _userManager = userManager;
@@ -28,28 +28,28 @@ public class AuthController : ControllerBase
         var user = new IdentityUser { UserName = request.Email, Email = request.Email };
         var result = await _userManager.CreateAsync(user, request.Password);
 
-        if (result.Succeeded) return Ok(new { Message = "Usuário criado com sucesso!" });
+        if (result.Succeeded) return Ok(new { Message = "User created successfully!" });
         return BadRequest(result.Errors);
     }
 
-    // --- NOVO ENDPOINT DE LOGIN ---
+    // --- LOGIN ENDPOINT ---
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        // 1. Procuramos o usuário no banco pelo e-mail
+        // 1. Look up the user by email
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        // 2. Se o usuário não existir OU a senha estiver errada, negamos a entrada!
+        // 2. If the user doesn't exist or password is invalid, deny access
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
-            return Unauthorized(new { Message = "Email ou senha inválidos." });
+            return Unauthorized(new { Message = "Invalid email or password." });
         }
 
-        // 3. Se chegou aqui, o login tá certo. Vamos fabricar o Token!
+        // 3. Login succeeded. Create the JWT token
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
 
-        // Aqui nós colocamos "carimbos" (Claims) dentro do Token, tipo o ID e o E-mail dele
+        // Add claims to the token (e.g., user id and email)
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        // Devolvemos o Token em formato de texto para o cliente
+        // Return the token as text
         return Ok(new { Token = tokenHandler.WriteToken(token) });
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NexusBank.Application.UseCases;
 using NexusBank.Domain.Repositories;
+using NexusBank.Domain.Services;
 using NexusBank.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,10 @@ builder.Services.AddAuthentication(options =>
 // 2. Injeção de Dependência (A Mágica da Clean Architecture!)
 // "Sempre que alguém pedir a Interface, entregue a classe real"
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
+
+// Domain Services
+builder.Services.AddScoped<TransferDomainService>();
 
 // Registrar os Casos de Uso para a API poder chamá-los
 builder.Services.AddScoped<CreateAccountUseCase>();

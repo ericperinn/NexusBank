@@ -18,7 +18,6 @@ public class AccountRepository : IAccountRepository
     public async Task AddAsync(Account account)
     {
         await _context.Accounts.AddAsync(account);
-        await _context.SaveChangesAsync(); // É aqui que o comando INSERT vai para o SQLite
     }
 
     public async Task<Account?> GetByIdAsync(Guid id)
@@ -30,6 +29,5 @@ public class AccountRepository : IAccountRepository
     public async Task UpdateAsync(Account account)
     {
         _context.Accounts.Update(account);
-        await _context.SaveChangesAsync(); // É aqui que o comando UPDATE vai para o SQLite
     }
 }

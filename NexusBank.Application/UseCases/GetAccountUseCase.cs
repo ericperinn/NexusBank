@@ -1,5 +1,6 @@
-﻿using NexusBank.Domain.Entities;
-using NexusBank.Domain.Repositories;
+﻿using NexusBank.Domain.Repositories;
+using NexusBank.Domain.Exceptions;
+using NexusBank.Application.DTOs;
 
 namespace NexusBank.Application.UseCases;
 
@@ -12,13 +13,11 @@ public class GetAccountUseCase
         _repository = repository;
     }
 
-    public async Task<Account> ExecuteAsync(Guid id)
+    public async Task<AccountDto> ExecuteAsync(Guid id)
     {
-        var account = await _repository.GetByIdAsync(id);
+        var account = await _repository.GetByIdAsync(id) 
+            ?? throw new AccountNotFoundException(id);
 
-        if (account == null)
-            throw new Exception("Conta não encontrada.");
-
-        return account;
+        return new AccountDto(account.Id, account.OwnerName, account.Balance);
     }
 }

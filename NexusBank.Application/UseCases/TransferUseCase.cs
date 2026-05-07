@@ -1,32 +1,38 @@
 ﻿using NexusBank.Domain.Repositories;
+using NexusBank.Domain.Services;
+using NexusBank.Domain.Exceptions;
 
 namespace NexusBank.Application.UseCases;
 
 public class TransferUseCase
 {
     private readonly IAccountRepository _repository;
+    private readonly TransferDomainService _transferService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TransferUseCase(IAccountRepository repository)
+    public TransferUseCase(
+        IAccountRepository repository, 
+        TransferDomainService transferService,
+        IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _transferService = transferService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task ExecuteAsync(Guid fromAccountId, Guid toAccountId, decimal amount)
     {
-        // 1. Fetch: Busca as DUAS contas no banco
-        var fromAccount = await _repository.GetByIdAsync(fromAccountId);
-        var toAccount = await _repository.GetByIdAsync(toAccountId);
+        var fromAccount = await _repository.GetByIdAsync(fromAccountId) 
+            ?? throw new AccountNotFoundException(fromAccountId);
 
-        if (fromAccount == null) throw new Exception("Conta de origem não encontrada.");
-        if (toAccount == null) throw new Exception("Conta de destino não encontrada.");
+        var toAccount = await _repository.GetByIdAsync(toAccountId) 
+            ?? throw new AccountNotFoundException(toAccountId);
 
-        // 2. Mutate
-        fromAccount.Transfer(toAccount, amount);
+        _transferService.Transfer(fromAccount, toAccount, amount);
 
-        // 3. Save: Atualiza as duas contas no banco de dados
-        // Nota: Como o Entity Framework é inteligente, ele só vai commitar essa transação 
-        // no banco de dados se as duas atualizações derem certo!
         await _repository.UpdateAsync(fromAccount);
         await _repository.UpdateAsync(toAccount);
+
+        await _unitOfWork.CommitAsync();
     }
 }

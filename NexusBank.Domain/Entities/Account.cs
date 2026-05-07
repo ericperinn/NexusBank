@@ -1,28 +1,29 @@
-﻿namespace NexusBank.Domain.Entities;
+﻿using NexusBank.Domain.Exceptions;
+
+namespace NexusBank.Domain.Entities;
 
 public class Account
 {
-    // 1. Setters PRIVADOS: Ninguém de fora pode mudar essas propriedades diretamente.
     public Guid Id { get; private set; }
-    public string OwnerName { get; private set; }
+    public string OwnerName { get; private set; } = default!;
     public decimal Balance { get; private set; }
 
-    // 2. Construtor: A única forma de nascer uma conta válida.
+    private Account() { }
+
     public Account(string ownerName)
     {
         if (string.IsNullOrWhiteSpace(ownerName))
-            throw new ArgumentException("O nome do titular é obrigatório.");
+            throw new DomainException("Owner name is required.");
 
         Id = Guid.NewGuid();
         OwnerName = ownerName;
-        Balance = 0m; // Começa zerada
+        Balance = 0m; 
     }
 
-    // 3. Comportamentos (Regras de Negócio Puras)
     public void Deposit(decimal amount)
     {
         if (amount <= 0)
-            throw new ArgumentException("O valor do depósito deve ser maior que zero.");
+            throw new DomainException("Deposit amount must be greater than zero.");
 
         Balance += amount;
     }
@@ -30,21 +31,11 @@ public class Account
     public void Withdraw(decimal amount)
     {
         if (amount <= 0)
-            throw new ArgumentException("O valor do saque deve ser maior que zero.");
+            throw new DomainException("Withdrawal amount must be greater than zero.");
 
         if (amount > Balance)
-            throw new InvalidOperationException("Saldo insuficiente para realizar o saque.");
+            throw new InsufficientFundsException(Balance, amount);
 
         Balance -= amount;
-    }
-
-    public void Transfer(Account targetAccount, decimal amount)
-    {
-        if (targetAccount == null)
-            throw new ArgumentException("A conta de destino não pode ser nula.");
-
-        this.Withdraw(amount);
-
-        targetAccount.Deposit(amount);
     }
 }

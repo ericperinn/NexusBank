@@ -15,7 +15,7 @@ public class AccountsController : ControllerBase
     private readonly TransferUseCase _transferUseCase;
     private readonly GetAccountUseCase _getAccountUseCase;
 
-    // A API recebe os casos de uso prontos aqui!
+    // The API receives the use cases already wired via DI.
     public AccountsController(
         CreateAccountUseCase createAccountUseCase,
         DepositUseCase depositUseCase,
@@ -28,7 +28,7 @@ public class AccountsController : ControllerBase
         _getAccountUseCase = getAccountUseCase;
     }
 
-    // Endpoint 1: Criar Conta
+    // Endpoint 1: Create account
     // POST: api/accounts
     [Authorize]
     [HttpPost]
@@ -37,15 +37,15 @@ public class AccountsController : ControllerBase
         try
         {
             var accountId = await _createAccountUseCase.ExecuteAsync(ownerName);
-            return Ok(new { Message = "Conta criada com sucesso!", AccountId = accountId });
+            return Ok(new { Message = "Account created successfully!", AccountId = accountId });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Error = ex.Message }); // Se o DDD bloquear (ex: nome vazio), o erro cai aqui
+            return BadRequest(new { Error = ex.Message });
         }
     }
 
-    // Endpoint 2: Fazer Depósito
+    // Endpoint 2: Deposit
     // POST: api/accounts/{id}/deposit
     [Authorize]
     [HttpPost("{id}/deposit")]
@@ -54,11 +54,11 @@ public class AccountsController : ControllerBase
         try
         {
             await _depositUseCase.ExecuteAsync(id, amount);
-            return Ok(new { Message = $"Depósito de {amount} realizado com sucesso!" });
+            return Ok(new { Message = $"Deposit of {amount} completed successfully!" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Error = ex.Message }); // Se tentar depositar valor negativo, o erro do DDD cai aqui
+            return BadRequest(new { Error = ex.Message });
         }
     }
 
@@ -69,7 +69,7 @@ public class AccountsController : ControllerBase
         try
         {
             await _transferUseCase.ExecuteAsync(request.FromAccountId, request.ToAccountId, request.Amount);
-            return Ok(new { Message = "Transferência realizada com sucesso!" });
+            return Ok(new { Message = "Transfer completed successfully!" });
         }
         catch (Exception ex)
         {
@@ -85,14 +85,14 @@ public class AccountsController : ControllerBase
         {
             var account = await _getAccountUseCase.ExecuteAsync(id);
 
-            // Transformamos a Entidade em um DTO antes de mandar para o cliente
+            // Map to API response DTO
             var response = new AccountResponse(account.Id, account.OwnerName, account.Balance);
 
             return Ok(response);
         }
         catch (Exception ex)
         {
-            return NotFound(new { Error = ex.Message }); // Retorna 404 se não achar a conta
+            return NotFound(new { Error = ex.Message });
         }
     }
 }
