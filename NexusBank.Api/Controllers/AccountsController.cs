@@ -1,98 +1,88 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NexusBank.Application.Commands.CreateAccount;
+using NexusBank.Application.Commands.Deposit;
+using NexusBank.Application.Commands.Transfer;
+using NexusBank.Application.Queries.GetAccount;
 using NexusBank.Api.DTOs;
-using NexusBank.Application.UseCases;
+using NexusBank.Domain.Exceptions;
 
 namespace NexusBank.Api.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AccountsController : ControllerBase
 {
-    private readonly CreateAccountUseCase _createAccountUseCase;
-    private readonly DepositUseCase _depositUseCase;
-    private readonly TransferUseCase _transferUseCase;
-    private readonly GetAccountUseCase _getAccountUseCase;
+    private readonly IMediator _mediator;
 
-    // The API receives the use cases already wired via DI.
-    public AccountsController(
-        CreateAccountUseCase createAccountUseCase,
-        DepositUseCase depositUseCase,
-        TransferUseCase transferUseCase,
-        GetAccountUseCase getAccountUseCase)
+    public AccountsController(IMediator mediator)
     {
-        _createAccountUseCase = createAccountUseCase;
-        _depositUseCase = depositUseCase;
-        _transferUseCase = transferUseCase;
-        _getAccountUseCase = getAccountUseCase;
+        _mediator = mediator;
     }
 
-    // Endpoint 1: Create account
-    // POST: api/accounts
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateAccount([FromBody] string ownerName)
     {
         try
         {
-            var accountId = await _createAccountUseCase.ExecuteAsync(ownerName);
-            return Ok(new { Message = "Account created successfully!", AccountId = accountId });
+            var id = await _mediator.Send(new CreateAccountCommand(ownerName));
+            return CreatedAtAction(nameof(GetAccount), new { id }, new { id });
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
-            return BadRequest(new { Error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
-    // Endpoint 2: Deposit
-    // POST: api/accounts/{id}/deposit
-    [Authorize]
     [HttpPost("{id}/deposit")]
     public async Task<IActionResult> Deposit(Guid id, [FromBody] decimal amount)
     {
         try
         {
-            await _depositUseCase.ExecuteAsync(id, amount);
-            return Ok(new { Message = $"Deposit of {amount} completed successfully!" });
+            await _mediator.Send(new DepositCommand(id, amount));
+            return NoContent();
         }
-        catch (Exception ex)
+        catch (AccountNotFoundException)
         {
-            return BadRequest(new { Error = ex.Message });
+            return NotFound();
+        }
+        catch (DomainException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
-    [Authorize]
     [HttpPost("transfer")]
     public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
     {
         try
         {
-            await _transferUseCase.ExecuteAsync(request.FromAccountId, request.ToAccountId, request.Amount);
-            return Ok(new { Message = "Transfer completed successfully!" });
+            await _mediator.Send(new TransferCommand(request.FromAccountId, request.ToAccountId, request.Amount));
+            return NoContent();
         }
-        catch (Exception ex)
+        catch (AccountNotFoundException)
         {
-            return BadRequest(new { Error = ex.Message });
+            return NotFound();
+        }
+        catch (DomainException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
-    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAccount(Guid id)
     {
         try
         {
-            var account = await _getAccountUseCase.ExecuteAsync(id);
-
-            // Map to API response DTO
-            var response = new AccountResponse(account.Id, account.OwnerName, account.Balance);
-
-            return Ok(response);
+            var account = await _mediator.Send(new GetAccountQuery(id));
+            return Ok(new AccountResponse(account.Id, account.OwnerName, account.Balance));
         }
-        catch (Exception ex)
+        catch (AccountNotFoundException)
         {
-            return NotFound(new { Error = ex.Message });
+            return NotFound();
         }
     }
 }
