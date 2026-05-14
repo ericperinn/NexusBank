@@ -27,4 +27,4 @@ jobs:
       run: dotnet build "NexusBank.slnx" --configuration Release --no-restore
       
     - name: Test
-      run: dotnet test "NexusBank.slnx" --no-build --verbosity normal
+      run: dotnet test "NexusBank.slnx" --configuration Release --no-build --verbosity normal
