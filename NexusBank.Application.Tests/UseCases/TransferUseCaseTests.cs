@@ -53,8 +53,8 @@ public class TransferUseCaseTests
         await _sut.ExecuteAsync(fromAccountId, toAccountId, transferAmount);
 
         // Assert
-        fromAccount.Balance.Should().Be(50m);
-        toAccount.Balance.Should().Be(50m);
+        fromAccount.Balance.Amount.Should().Be(50m);
+        toAccount.Balance.Amount.Should().Be(50m);
 
         _accountRepositoryMock.Verify(repo => repo.UpdateAsync(fromAccount), Times.Once);
         _accountRepositoryMock.Verify(repo => repo.UpdateAsync(toAccount), Times.Once);
