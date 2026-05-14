@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NexusBank.Application.Commands.CreateAccount;
 using NexusBank.Application.UseCases;
 using NexusBank.Domain.Repositories;
 using NexusBank.Domain.Services;
@@ -63,6 +64,10 @@ builder.Services.AddScoped<CreateAccountUseCase>();
 builder.Services.AddScoped<DepositUseCase>();
 builder.Services.AddScoped<TransferUseCase>();
 builder.Services.AddScoped<GetAccountUseCase>();
+
+// MediatR - CQRS handlers
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateAccountCommand).Assembly));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
