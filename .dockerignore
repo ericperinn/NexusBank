@@ -1,0 +1,11 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/*.db
+**/*.db-shm
+**/*.db-wal
+.github/
+*Tests*/
+**/Dockerfile*
+**/docker-compose*
