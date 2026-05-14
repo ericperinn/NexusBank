@@ -10,10 +10,9 @@ using NexusBank.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar o Banco de Dados (SQLite)
-// Aqui definimos que o arquivo do banco vai se chamar "nexusbank.db"
+// 1. Configurar o Banco de Dados (PostgreSQL)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=nexusbank.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 // --- INÍCIO DAS CONFIGURAÇÕES DE SEGURANÇA ---
 
@@ -74,7 +73,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated(); // Vai recriar o banco, agora com as 7 tabelas do Identity!
+    db.Database.Migrate();
 }
 
 // Configurar o Swagger (Nossa interface de testes)

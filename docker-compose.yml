@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: nexusbank
+      POSTGRES_USER: nexusbank
+      POSTGRES_PASSWORD: nexusbank
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexusbank"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=nexusbank;Username=nexusbank;Password=nexusbank
+      - JwtSettings__Secret=NexusBankSuperSecretKeyQuePrecisaTerPeloMenos32Caracteres!
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
