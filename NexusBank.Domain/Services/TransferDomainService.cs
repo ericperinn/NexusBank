@@ -10,8 +10,8 @@ public class TransferDomainService
         if (from == null) throw new ArgumentNullException(nameof(from));
         if (to == null) throw new ArgumentNullException(nameof(to));
 
-        if (from.Balance < amount)
-            throw new InsufficientFundsException(from.Balance, amount);
+        if (from.Balance.Amount < amount)
+            throw new InsufficientFundsException(from.Balance.Amount, amount);
 
         from.Withdraw(amount);
         to.Deposit(amount);

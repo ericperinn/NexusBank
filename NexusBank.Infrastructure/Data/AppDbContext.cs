@@ -27,7 +27,21 @@ public class AppDbContext : IdentityDbContext<IdentityUser>, IUnitOfWork
         {
             builder.HasKey(a => a.Id);
             builder.Property(a => a.OwnerName).IsRequired().HasMaxLength(100);
-            builder.Property(a => a.Balance).IsRequired();
+
+            builder.OwnsOne(a => a.Balance, money =>
+            {
+                money.Property(m => m.Amount)
+                     .HasColumnName("Balance")
+                     .IsRequired();
+            });
+
+            builder.OwnsOne(a => a.AccountNumber, an =>
+            {
+                an.Property(n => n.Value)
+                  .HasColumnName("AccountNumber")
+                  .HasMaxLength(20)
+                  .IsRequired();
+            });
         });
     }
 }

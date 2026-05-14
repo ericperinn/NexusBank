@@ -18,7 +18,7 @@ public class AccountTests
         // Assert
         account.Id.Should().NotBeEmpty();
         account.OwnerName.Should().Be(ownerName);
-        account.Balance.Should().Be(0m);
+        account.Balance.Amount.Should().Be(0m);
     }
 
     [Theory]
@@ -46,7 +46,7 @@ public class AccountTests
         account.Deposit(depositAmount);
 
         // Assert
-        account.Balance.Should().Be(depositAmount);
+        account.Balance.Amount.Should().Be(depositAmount);
     }
 
     [Theory]
@@ -77,7 +77,7 @@ public class AccountTests
         account.Withdraw(withdrawAmount);
 
         // Assert
-        account.Balance.Should().Be(50m);
+        account.Balance.Amount.Should().Be(50m);
     }
 
     [Theory]

@@ -27,8 +27,8 @@ public class TransferDomainServiceTests
         _sut.Transfer(fromAccount, toAccount, transferAmount);
 
         // Assert
-        fromAccount.Balance.Should().Be(50m);
-        toAccount.Balance.Should().Be(50m);
+        fromAccount.Balance.Amount.Should().Be(50m);
+        toAccount.Balance.Amount.Should().Be(50m);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class TransferDomainServiceTests
 
         // Assert
         act.Should().Throw<InsufficientFundsException>();
-        fromAccount.Balance.Should().Be(50m); // Balance unchanged
-        toAccount.Balance.Should().Be(0m);   // Balance unchanged
+        fromAccount.Balance.Amount.Should().Be(50m); // Balance unchanged
+        toAccount.Balance.Amount.Should().Be(0m);   // Balance unchanged
     }
 }
